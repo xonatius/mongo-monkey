@@ -39,7 +39,8 @@ class ModelMeta(object):
             if attr_name in self.field_mapping:
                 setattr(model, attr_name, value)
             else:
-                raise AttributeError("'%(type_name)s' object has no attribute '%(attr_name)s'" % {'type_name': type_name(model), 'attr_name': attr_name})
+                raise AttributeError("'%(type_name)s' object has no attribute '%(attr_name)s'" %
+                                     {'type_name': type_name(model), 'attr_name': attr_name})
 
     def populate_model_from_document(self, model, document):
         for key, value in document.viewitems():

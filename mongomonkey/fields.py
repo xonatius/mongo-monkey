@@ -7,12 +7,15 @@ from mongomonkey.utils import type_name
 MONGO_TYPES = (ObjectId, int, float, basestring, list, dict)
 
 def default_value_from_type(cls):
+    # None is default value, when cls is not set or it is Model
     if cls is not None and not issubclass(cls, Model):
         return cls()
     return None
 
+
 def check_mongo_type(cls):
     return issubclass(cls, MONGO_TYPES)
+
 
 class Field(object):
 
@@ -23,10 +26,11 @@ class Field(object):
 
     _field_type = None
 
-    # TODO: Make optional store type behavior: when field is not strongly typed, we should keep type of EmbeddedModel in mongodb
+    # TODO: Make optional store type behavior: when field is not strongly typed,
+    # we should keep type of EmbeddedModel in mongodb
     def __init__(self, field_type=None, field_name=None, default_value=default_value_from_type):
         if field_type is not None and not check_mongo_type(field_type):
-            raise TypeError("Invalid mongo type %(type)s" % {'type': field_type})
+            raise TypeError("Invalid mongo type %(type)s" % {'type': type_name(field_type)})
 
         self._field_name = field_name
         self._field_type = field_type
@@ -38,7 +42,8 @@ class Field(object):
         else:
             if self._field_name in instance:
                 return instance[self._field_name]
-            raise AttributeError("'%(type_name)s' object has no attribute '%(attr_name)s'" % {'type_name': type_name(owner), 'attr_name': self._attr_name})
+            raise AttributeError("'%(type_name)s' object has no attribute '%(attr_name)s'" %
+                                 {'type_name': type_name(owner), 'attr_name': self._attr_name})
 
     def __set__(self, instance, value):
         value = self.prepare(value)
@@ -59,7 +64,8 @@ class Field(object):
             return value
         # If value type doesn't match, we should raise an exception
         if not isinstance(value, self._field_type):
-            raise TypeError("Type of value should be %(expected)s, not %(actual)s" % {'expected': self._field_type, 'actual': type(value)})
+            raise TypeError("Type of value should be %(expected)s, not %(actual)s" %
+                            {'expected': type_name(self._field_type), 'actual': type_name(value)})
         # Special handling for list if expected list is strongly typed
         if issubclass(self._field_type, TypedList):
             return self._field_type(value)

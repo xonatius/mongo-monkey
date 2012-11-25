@@ -32,7 +32,6 @@ class Cursor(PyMongoCursor):
         self.__model = model
         return self
 
-
     def clone(self):
         """Get a clone of this cursor.
 

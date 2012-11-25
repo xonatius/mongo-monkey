@@ -13,12 +13,14 @@ class Collection(PyMongoCollection):
         if not isinstance(obj, Model):
             raise TypeError("Type of obj should be a subclass of Model class")
 
-        obj['_id'] = self.save(obj, manipulate=manipulate, safe=safe, check_keys=check_keys, **kwargs)
+        obj['_id'] = self.save(obj, manipulate=manipulate, safe=safe,
+            check_keys=check_keys, **kwargs)
         return obj['_id']
 
     def insert_objects(self, obj_or_objs, manipulate=True,
                        safe=None, check_keys=True, continue_on_error=False, **kwargs):
-        ids = self.insert(obj_or_objs, manipulate=manipulate, safe=safe, check_keys=check_keys, continue_on_error=continue_on_error, **kwargs)
+        ids = self.insert(obj_or_objs, manipulate=manipulate, safe=safe,
+            check_keys=check_keys, continue_on_error=continue_on_error, **kwargs)
 
         for obj, id in zip(tuple(obj_or_objs), tuple(ids)):
             obj['_id'] = id
@@ -27,14 +29,18 @@ class Collection(PyMongoCollection):
 
     def update_object(self, obj, manipulate=False, safe=None, check_keys=True, **kwargs):
         if '_id' not in obj:
-            raise ValueError("Updating object %(object)s doesn't contain _id field. Seems like it wasn't saved before." % {'object': obj})
-        # TODO: Currently it update whole document instead of changed fields. In future it should be changed.
+            raise ValueError("Updating object %(object)s doesn't contain _id field. "
+                             "Seems like it wasn't saved before." % {'object': obj})
+        # TODO: Currently it update whole document instead of changed fields.
+        # In future it should be changed.
         id = obj['_id']
-        return self.update({'_id': id}, obj, manipulate=manipulate, safe=safe, check_keys=check_keys, **kwargs)
+        return self.update({'_id': id}, obj, manipulate=manipulate, safe=safe,
+            check_keys=check_keys, **kwargs)
 
     def remove_object(self, obj, safe=None, **kwargs):
         if '_id' not in obj:
-            raise ValueError("Removing object %(object)s doesn't contain _id field. Seems like it wasn't saved before." % {'object': obj})
+            raise ValueError("Removing object %(object)s doesn't contain _id field. "
+                             "Seems like it wasn't saved before." % {'object': obj})
         id = obj['_id']
         return self.remove({'_id': id}, safe=safe, **kwargs)
 

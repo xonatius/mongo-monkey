@@ -1,3 +1,5 @@
+from mongomonkey.utils import type_name
+
 class TypedList(list):
 
     def __init__(self, seq=()):
@@ -29,7 +31,8 @@ class TypedList(list):
     @classmethod
     def ensure_type(cls, value):
         if not cls.validate(value):
-            raise TypeError("Type of value should be %(expected)s, not %(actual)s" % {'expected': cls._inner_type, 'actual': type(value)})
+            raise TypeError("Type of value should be %(expected)s, not %(actual)s" %
+                            {'expected': type_name(cls._inner_type), 'actual': type_name(value)})
         return value
 
     @classmethod
@@ -39,7 +42,7 @@ class TypedList(list):
     @classmethod
     def from_mongo(cls, value):
         if not isinstance(value, (list, )):
-            raise TypeError("Value should be list, not %(type)s" % {'type': type(value)})
+            raise TypeError("Value should be list, not %(type)s" % {'type': type_name(value)})
         item_generator = (cls.item_from_mongo(item) for item in value)
         return cls(item_generator)
 
@@ -60,7 +63,7 @@ class TypedListBase(type):
 
 _list_cache = {}
 
-def make_list(cls):
+def list_of(cls):
     if cls not in _list_cache:
         _list_cache[cls] = TypedListBase(cls)
     return _list_cache[cls]

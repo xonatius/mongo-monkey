@@ -3,7 +3,7 @@ import setuptools
 
 setuptools.setup(
     name="Mongo Monkey",
-    version="0.0.1",
+    version="0.0.2-dev",
     author="Daniil Bondarev",
     author_email="xonatius@gmail.com",
     description="A MongoDB object-document mapping layer for Python",
