@@ -24,34 +24,12 @@ class ModelMeta(object):
     """Class to store meta data about Model"""
 
     field_mapping = None
-    mongo_field_mapping = None
 
     def __init__(self):
         self.field_mapping = {}
-        self.mongo_field_mapping = {}
 
-    def add_field(self, field, model_name, mongo_name):
-        self.field_mapping[model_name] = field
-        self.mongo_field_mapping[mongo_name] = field
-
-    def populate_model(self, model, data):
-        for attr_name, value in data.viewitems():
-            if attr_name in self.field_mapping:
-                setattr(model, attr_name, value)
-            else:
-                raise AttributeError("'%(type_name)s' object has no attribute '%(attr_name)s'" %
-                                     {'type_name': type_name(model), 'attr_name': attr_name})
-
-    def populate_model_from_document(self, model, document):
-        for key, value in document.viewitems():
-            if key in self.mongo_field_mapping:
-                self.mongo_field_mapping[key].set_from_mongo(model, value)
-            else:
-                model[key] = value
-
-    def populate_model_with_default(self, model):
-        for field in self.field_mapping.viewvalues():
-            field.set_default(model)
+    def add_field(self, field, name):
+        self.field_mapping[name] = field
 
 
 # TODO: We inherited our model from dict to simplify storing object in mongodb,
@@ -60,12 +38,18 @@ class ModelMeta(object):
 class Model(dict):
     __metaclass__ = ModelBase
 
-    def __init__(self, **kwargs):
-        self._meta.populate_model_with_default(self)
-        self._meta.populate_model(self, kwargs)
+    def __setitem__(self, key, value):
+        if key in self._meta.field_mapping:
+            value = self._meta.field_mapping[key].prepare(value)
+        return super(Model, self).__setitem__(key, value)
+
+    #TODO: Update, __init__ and other populating stuff
 
     @classmethod
-    def from_mongo(cls, document):
+    def cast_to_class(cls, document):
+        if not isinstance(document, dict):
+            raise TypeError() #TODO: Msg
         obj = cls()
-        cls._meta.populate_model_from_document(obj, document)
+        for key, value in document.viewitems():
+            obj[key] = value
         return obj

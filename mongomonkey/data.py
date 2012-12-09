@@ -22,11 +22,11 @@ class TypedList(list):
         return new_obj
 
     def __setitem__(self, key, value):
-        return super(TypedList, self).__setitem__(key, self.ensure_type(value))
-
-    def __setslice__(self, i, j, sequence):
-        check_iterable = (self.ensure_type(item) for item in sequence)
-        return super(TypedList, self).__setslice__(i, j, check_iterable)
+        if isinstance(key, slice):
+            value = (self.ensure_type(item) for item in value)
+        else:
+            value = self.ensure_type(value)
+        return super(TypedList, self).__setitem__(key, value)
 
     @classmethod
     def ensure_type(cls, value):
@@ -40,16 +40,17 @@ class TypedList(list):
         return isinstance(value, cls._inner_type)
 
     @classmethod
-    def from_mongo(cls, value):
+    def cast_to_class(cls, value):
         if not isinstance(value, (list, )):
             raise TypeError("Value should be list, not %(type)s" % {'type': type_name(value)})
-        item_generator = (cls.item_from_mongo(item) for item in value)
+        item_generator = (cls.cast_inner_item(item) for item in value)
         return cls(item_generator)
 
     @classmethod
-    def item_from_mongo(cls, item):
+    def cast_inner_item(cls, item):
         if not isinstance(item, cls._inner_type):
-            return cls._inner_type.from_mongo(item)
+            #TODO: Check cast_to_class existance
+            return cls._inner_type.cast_to_class(item)
         return item
 
 
