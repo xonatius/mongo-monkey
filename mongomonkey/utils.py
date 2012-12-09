@@ -1,4 +1,5 @@
 from bson import ObjectId
+from inspect import isclass
 
 MONGO_TYPES = (ObjectId, int, float, basestring, list, dict)
 
@@ -8,7 +9,7 @@ def check_mongo_type(cls):
 
 def type_name(obj_or_type):
     """Returns name of type."""
-    if issubclass(obj_or_type, type):
+    if isclass(obj_or_type):
         return obj_or_type.__name__
     return type(obj_or_type).__name__
 

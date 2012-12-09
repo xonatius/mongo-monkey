@@ -1,4 +1,4 @@
-from mongomonkey.utils import type_name
+from mongomonkey.utils import type_name, cast_to_class
 
 class TypedList(list):
 
@@ -48,10 +48,7 @@ class TypedList(list):
 
     @classmethod
     def cast_inner_item(cls, item):
-        if not isinstance(item, cls._inner_type):
-            #TODO: Check cast_to_class existance
-            return cls._inner_type.cast_to_class(item)
-        return item
+        return cast_to_class(item, cls._inner_type)
 
 
 class TypedListBase(type):

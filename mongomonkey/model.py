@@ -38,18 +38,37 @@ class ModelMeta(object):
 class Model(dict):
     __metaclass__ = ModelBase
 
+    def __init__(self, *args, **kwargs):
+        self.update(*args, **kwargs)
+
     def __setitem__(self, key, value):
         if key in self._meta.field_mapping:
             value = self._meta.field_mapping[key].prepare(value)
         return super(Model, self).__setitem__(key, value)
 
-    #TODO: Update, __init__ and other populating stuff
+    def __repr__(self):
+        params = u" ".join((key + u"=" + repr(value) for key, value in self.viewitems()))
+        return u"<%(class_name)s %(params)s>" % {"class_name": type_name(self), "params": params}
+
+    def update(self, *args, **kwargs):
+        if args:
+            if len(args) > 1:
+                raise TypeError("update expected at most 1 arguments, got %d" % len(args))
+            other = dict(args[0])
+            for key in other:
+                self[key] = other[key]
+        for key in kwargs:
+            self[key] = kwargs[key]
+
+    def setdefault(self, key, value=None):
+        if key not in self:
+            self[key] = value
+        return self[key]
 
     @classmethod
     def cast_to_class(cls, document):
         if not isinstance(document, dict):
-            raise TypeError() #TODO: Msg
+            raise TypeError("Type of document should be subclass of dict.")
         obj = cls()
-        for key, value in document.viewitems():
-            obj[key] = value
+        obj.update(document)
         return obj
