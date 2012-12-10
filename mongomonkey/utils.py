@@ -1,7 +1,8 @@
+from datetime import datetime
 from bson import ObjectId
 from inspect import isclass
 
-MONGO_TYPES = (ObjectId, int, float, basestring, list, dict)
+MONGO_TYPES = (ObjectId, int, float, basestring, list, dict, datetime)
 
 def check_mongo_type(cls):
     return issubclass(cls, MONGO_TYPES)
