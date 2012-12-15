@@ -6,16 +6,18 @@ class Field(object):
 
     _cls = None
     _field_name = None
+    _attribute_name = None
 
     _field_type = None
 
     # TODO: Make optional store type behavior: when field is not strongly typed,
     # we should keep type of EmbeddedModel in mongodb
-    def __init__(self, field_type=None):
+    def __init__(self, field_type=None, field_name=None):
         if field_type is not None and not check_mongo_type(field_type):
             raise TypeError("Invalid mongo type %(type)s" % {'type': type_name(field_type)})
 
         self._field_type = field_type
+        self._field_name = field_name
 
     def __get__(self, instance, owner):
         if instance is None:
@@ -54,8 +56,11 @@ class Field(object):
 
         # Storing necessary data
         self._cls = cls
-        self._field_name = name
+        self._attribute_name = name
+
+        if self._field_name is None:
+            self._field_name = name
 
         # Adding field to meta information of model
-        self._cls._meta.add_field(self, self._field_name)
+        self._cls._meta.add_field(self, self._field_name, self._attribute_name)
 

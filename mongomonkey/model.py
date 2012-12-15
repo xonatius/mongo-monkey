@@ -24,12 +24,20 @@ class ModelMeta(object):
     """Class to store meta data about Model"""
 
     field_mapping = None
+    attribute_field_mapping = None
 
     def __init__(self):
         self.field_mapping = {}
+        # TODO: Add bidirectional mapping here
+        self.attribute_field_mapping = {}
 
-    def add_field(self, field, name):
-        self.field_mapping[name] = field
+    def add_field(self, field, field_name, attribute_name):
+        # Mapping 2 or more attribute to one field can cause lots of bugs.
+        # So currently it is not allowed.
+        if field_name in self.field_mapping:
+            raise ValueError("Field %(field_name)s is already mapped." % {'field_name': field_name})
+        self.field_mapping[field_name] = field
+        self.attribute_field_mapping[attribute_name] = field_name
 
 
 # TODO: We inherited our model from dict to simplify storing object in mongodb,
