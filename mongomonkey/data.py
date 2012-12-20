@@ -1,4 +1,5 @@
-from mongomonkey.utils import type_name, cast_to_class
+from mongomonkey.model_manager import model_manager
+from mongomonkey.utils import type_name, cast_to_class, ClassProperty
 
 class TypedList(list):
 
@@ -28,16 +29,24 @@ class TypedList(list):
             value = self.ensure_type(value)
         return super(TypedList, self).__setitem__(key, value)
 
+    @ClassProperty
+    def inner_type(cls):
+        if isinstance(cls._inner_type, basestring):
+            # TODO: think about handling "self" qualifier
+            cls._inner_type = model_manager.resolve(cls._inner_type)
+        # TODO: we can erase property on a first run
+        return cls._inner_type
+
     @classmethod
     def ensure_type(cls, value):
         if not cls.validate(value):
             raise TypeError("Type of value should be %(expected)s, not %(actual)s" %
-                            {'expected': type_name(cls._inner_type), 'actual': type_name(value)})
+                            {'expected': type_name(cls.inner_type), 'actual': type_name(value)})
         return value
 
     @classmethod
     def validate(cls, value):
-        return isinstance(value, cls._inner_type)
+        return isinstance(value, cls.inner_type)
 
     @classmethod
     def cast_to_class(cls, value):
@@ -48,20 +57,25 @@ class TypedList(list):
 
     @classmethod
     def cast_inner_item(cls, item):
-        return cast_to_class(item, cls._inner_type)
+        return cast_to_class(item, cls.inner_type)
 
 
 class TypedListBase(type):
 
     def __new__(cls, inner_type):
-        name = inner_type.__name__ + 'List'
+        if isinstance(inner_type, basestring):
+            inner_type_name = inner_type.rsplit('.', 1)[-1]
+        else:
+            inner_type_name = inner_type.__name__
+        name = inner_type_name + "List"
         bases = (TypedList,)
         dict = {'_inner_type': inner_type}
         return super(TypedListBase, cls).__new__(cls, name, bases, dict)
 
 _list_cache = {}
 
-def list_of(cls):
-    if cls not in _list_cache:
-        _list_cache[cls] = TypedListBase(cls)
-    return _list_cache[cls]
+def list_of(inner_type):
+    # TODO: Handle qualifier?
+    if inner_type not in _list_cache:
+        _list_cache[inner_type] = TypedListBase(inner_type)
+    return _list_cache[inner_type]

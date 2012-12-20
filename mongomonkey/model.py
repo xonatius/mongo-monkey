@@ -1,3 +1,4 @@
+from mongomonkey.model_manager import model_manager
 from mongomonkey.utils import type_name
 
 class ModelBase(type):
@@ -10,6 +11,9 @@ class ModelBase(type):
         # Populating with attributes
         for name, attribute in attributes.viewitems():
             new_class.add_to_class(name, attribute)
+
+        # Registering model in model manager
+        model_manager.register_model(new_class)
 
         return new_class
 

@@ -33,3 +33,20 @@ collection.save(author)
 # Retrieving object
 author = collection.find_one(as_class=Author)
 ```
+
+Recursive embedding:
+-------------
+
+```python
+from mongomonkey import Model, Field, list_of
+
+class Node(Model):
+    title = Field(unicode)
+    # You can use 'self' to point on currently creating Model
+    child1 = Field('self')
+    # Also you can use a name of a model to point on it
+    child2 = Field('Node')
+
+# Printing instance of Node
+print Node(title=u"root", child1=Node(title=u"Child1"), child2=Node(title=u"Child2"))
+```

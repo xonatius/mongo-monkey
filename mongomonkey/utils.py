@@ -32,3 +32,16 @@ def cast_to_class(value, cls):
     # Other cases are not supported
     raise ValueError("Can't cast %(value)s to type %(cls_name)s" %
                      {'value':value, 'cls_name': type_name(cls)})
+
+
+def get_path(obj):
+    return "%s.%s" % (obj.__module__, obj.__name__)
+
+
+class ClassProperty(object):
+
+    def __init__(self, fget):
+        self.fget = fget
+
+    def __get__(self, instance, owner):
+        return self.fget(owner)
