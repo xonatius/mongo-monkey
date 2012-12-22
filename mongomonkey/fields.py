@@ -37,6 +37,9 @@ class Field(object):
         if instance is not None:
             if self._field_name in instance:
                 del instance[self._field_name]
+            else:
+                raise AttributeError("'%(type_name)s' object has no attribute '%(field_name)s'" %
+                                     {'type_name': type_name(instance), 'field_name': self._field_name})
 
     @property
     def field_type(self):
