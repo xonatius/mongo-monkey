@@ -22,6 +22,9 @@ class TypedList(list):
         new_obj.extend(other)
         return new_obj
 
+    def __setslice__(self, i, j, sequence):
+        return super(TypedList, self).__setslice__(i, j, (self.ensure_type(item) for item in sequence))
+
     def __setitem__(self, key, value):
         if isinstance(key, slice):
             value = (self.ensure_type(item) for item in value)
@@ -39,10 +42,7 @@ class TypedList(list):
 
     @classmethod
     def ensure_type(cls, value):
-        if not cls.validate(value):
-            raise TypeError("Type of value should be %(expected)s, not %(actual)s" %
-                            {'expected': type_name(cls.inner_type), 'actual': type_name(value)})
-        return value
+        return cls.cast_inner_item(value)
 
     @classmethod
     def validate(cls, value):
@@ -71,6 +71,7 @@ class TypedListBase(type):
         bases = (TypedList,)
         dict = {'_inner_type': inner_type}
         return super(TypedListBase, cls).__new__(cls, name, bases, dict)
+
 
 _list_cache = {}
 

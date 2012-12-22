@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import setuptools
 
 
@@ -13,5 +14,5 @@ setuptools.setup(
     packages=["mongomonkey"],
     long_description="Mongo-monkey is a MongoDB object-document mapping API for Python.",
     install_requires=['pymongo'],
-    tests_require=['nose']
+    test_suite="tests", 
     )
