@@ -1,18 +1,20 @@
 #!/usr/bin/env python
 import setuptools
 
+with open('README.md') as file:
+    long_description = file.read()
 
 setuptools.setup(
     name="Mongo Monkey",
-    version="0.0.4-dev",
+    version="0.0.5-dev",
     author="Daniil Bondarev",
     author_email="xonatius@gmail.com",
     description="A MongoDB object-document mapping layer for Python",
     license="BSD",
-    keywords="mongo mongodb database pymongo odm",
+    keywords="mongo mongodb pymongo odm orm",
     url="http://github.com/xonatius/mongo-monkey",
     packages=["mongomonkey"],
-    long_description="Mongo-monkey is a MongoDB object-document mapping API for Python.",
+    long_description=long_description,
     install_requires=['pymongo'],
-    test_suite="tests", 
+    test_suite="tests",
     )

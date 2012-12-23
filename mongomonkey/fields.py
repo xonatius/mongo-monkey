@@ -4,6 +4,9 @@ from mongomonkey.utils import type_name, cast_to_class, check_mongo_type
 
 # TODO: Implement default value. It's a tricky feature.
 class Field(object):
+    """
+    Class for setting field in model
+    """
 
     _cls = None
     _field_name = None
@@ -14,6 +17,16 @@ class Field(object):
     # TODO: Make optional store type behavior: when field is not strongly typed,
     # we should keep type of EmbeddedModel in mongodb
     def __init__(self, field_type=None, field_name=None):
+        """
+        Construct a new field
+
+        :param field_type: type which field would store. If set to None it could
+            store any type.
+
+        :param field_name: name of field in mongo document. If set to None it
+            would be the same as field name. Any two field in one model can't
+            have the same `field_name`.
+        """
         if field_type is not None and not isinstance(field_type, basestring) and \
            not check_mongo_type(field_type):
             raise TypeError("Invalid mongo type %(type)s" % {'type': type_name(field_type)})
@@ -22,6 +35,9 @@ class Field(object):
         self._field_name = field_name
 
     def __get__(self, instance, owner):
+        """
+        Getter of field
+        """
         if instance is None:
             return self
         else:
@@ -31,9 +47,15 @@ class Field(object):
                                  {'type_name': type_name(owner), 'field_name': self._field_name})
 
     def __set__(self, instance, value):
+        """
+        Setter of field
+        """
         instance[self._field_name] = value
 
     def __delete__(self, instance):
+        """
+        Deletter of field (=
+        """
         if instance is not None:
             if self._field_name in instance:
                 del instance[self._field_name]
@@ -43,6 +65,9 @@ class Field(object):
 
     @property
     def field_type(self):
+        """
+        Returns field type. In case it is not resolved, resolve it.
+        """
         # In case if field_type specified by string, we should resolve it
         if isinstance(self._field_type, basestring):
             if self._field_type == "self":
@@ -52,10 +77,16 @@ class Field(object):
         return self._field_type
 
     def prepare(self, value):
+        """
+        Prepare `value` with all field constraints and returns prepared object to store.
+        """
         #TODO: Here could be implemented validation
         return self.ensure_type(value)
 
     def ensure_type(self, value):
+        """
+        Cast `value` to type which field could store.
+        """
         # If Field is not strongly typed, no preparation is need
         if self.field_type is None:
             return value
@@ -66,6 +97,13 @@ class Field(object):
         return cast_to_class(value, self.field_type)
 
     def contribute_to_class(self, cls, name):
+        """
+        Used to attach a field to model
+
+        :param cls: model to which field is attached
+
+        :param name: name of attribute to which this field is attached
+        """
         # Attaching field to class
         setattr(cls, name, self)
 
