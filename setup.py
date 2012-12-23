@@ -5,8 +5,8 @@ with open('README.md') as file:
     long_description = file.read()
 
 setuptools.setup(
-    name="Mongo Monkey",
-    version="0.0.5-dev",
+    name="mongomonkey",
+    version="0.1",
     author="Daniil Bondarev",
     author_email="xonatius@gmail.com",
     description="A MongoDB object-document mapping layer for Python",
