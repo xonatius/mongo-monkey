@@ -1,15 +1,6 @@
 import unittest
-from mongomonkey import Model, Field
-
-class SomeEmbeddedModel(Model):
-    pass
-
-class SomeModel(Model):
-    simple_untyped_field = Field()
-    simple_int_field = Field(int)
-    bind_to_another_field = Field(str, "some_other_field")
-    simple_embedded_field = Field(SomeEmbeddedModel)
-    simple_another_embedded_field = Field(SomeEmbeddedModel)
+from mongomonkey import Field, Model
+from tests.examle_models import SomeEmbeddedModel, SomeModel
 
 
 class FieldTest(unittest.TestCase):
@@ -29,6 +20,7 @@ class FieldTest(unittest.TestCase):
         some_model.simple_embedded_field = embedded_model
         some_model.simple_another_embedded_field = {}
         self.assertDictEqual(expected, some_model)
+        self.assertIsInstance(some_model.simple_another_embedded_field, SomeEmbeddedModel)
 
     def test_invalid_set_field(self):
         expected = {}
@@ -84,6 +76,15 @@ class FieldTest(unittest.TestCase):
         with self.assertRaises(AttributeError):
             some_model.bind_to_another_field
         self.assertEqual(expected, some_model)
+
+    def test_field_type_resolving(self):
+        fieldToSomeModel = Field('SomeModel')
+        self.assertIs(SomeModel, fieldToSomeModel.field_type)
+
+        class SomeOtherModel(Model):
+            field_to_self = Field('self')
+
+        self.assertIs(SomeOtherModel, SomeOtherModel.field_to_self.field_type)
 
 
 
